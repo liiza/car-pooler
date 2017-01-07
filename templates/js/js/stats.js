@@ -23654,11 +23654,23 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 ;'use strict';
 
+var LinkedStateMixin = React.addons.LinkedStateMixin;
+
 var TestApp = React.createClass({displayName: "TestApp",  
+  mixins: [LinkedStateMixin],
+  getInitialState: function() {
+    return {
+       "text" : "foo"    
+    };
+  },
+
   render: function() {
     return (
       React.createElement("div", {className: "page"}, 
-        React.createElement("h1", null, "Oh shit! React works!")
+        React.createElement("h1", null, "Hello ", this.state.text), 
+        React.createElement("input", {type: "text", 
+               valueLink: this.linkState('text')}
+        )
       )
     );
   }
