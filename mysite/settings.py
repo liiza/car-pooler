@@ -122,8 +122,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = normpath(join(BASE_DIR, 'static'))  
-STATICFILES_DIRS = [(normpath(join(BASE_DIR, 'templates/js')))] 
-print STATIC_ROOT
+STATICFILES_DIRS = [normpath(join(BASE_DIR, 'templates/js')), normpath(join(BASE_DIR, 'templates/css'))] 
 
 # Django Pipeline (and browserify)
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'

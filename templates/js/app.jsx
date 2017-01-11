@@ -52,6 +52,40 @@ var Tasks = React.createClass({
   
 });
 
+var DateField = React.createClass({
+   getInitialState: function() {
+      return {"datetime": new Date(), "valid": true};
+   },
+ 
+   isPositiveInt: function(n) {
+      return !isNaN(parseInt(n)) && isFinite(n) && parseInt(n) > 0;
+   },   
+
+   handleChange: function(event) {
+      var parts = event.target.value.split("/")
+      this.setState({datetime: event.target.value});
+      if (parts.length !== 3) {
+          this.setState({"valid": false});
+          return;
+      }
+      if (!this.isPositiveInt(parts[0]) || !this.isPositiveInt(parts[1]) || !this.isPositiveInt(parts[2])) {
+          this.setState({"valid": false});
+          return;
+      }
+      this.setState({"valid":true})
+   },
+
+   render: function() {
+      var placeHolder = this.state.datetime;
+      if (this.state.valid) {
+          placeHolder = this.state.datetime.getMonth() + 1 + "/" + this.state.datetime.getDate() + "/"  + this.state.datetime.getFullYear();
+      } 
+      var className = this.state.valid ? "" : "invalid";
+      return (<input type="text" className={className} onChange={this.handleChange} value={placeHolder} ></input>)
+   }
+ 
+});
+
 var TestApp = React.createClass({  
 
   getInitialState: function() {
@@ -96,6 +130,7 @@ var TestApp = React.createClass({
                value={this.state.text} 
                onChange={this.handleChange} 
         />
+        <DateField/>
         <button onClick={this.submit}>Tallenna</button>
         <Tasks tasks={this.state.tasks}></Tasks>
       </div>

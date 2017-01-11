@@ -23698,13 +23698,46 @@ var Tasks = React.createClass({displayName: "Tasks",
    },
  
    render: function() {
-      console.log(this.state.tasks)
       var tasks = this.state.tasks.map(function(task) {
           return (React.createElement("li", {key: task.pk}, task.fields.content));
       })
       return (React.createElement("ul", null, tasks))
    }   
   
+});
+
+var DateField = React.createClass({displayName: "DateField",
+   getInitialState: function() {
+      return {"datetime": new Date(), "valid": true};
+   },
+ 
+   isPositiveInt: function(n) {
+      return !isNaN(parseInt(n)) && isFinite(n) && parseInt(n) > 0;
+   },   
+
+   handleChange: function(event) {
+      var parts = event.target.value.split("/")
+      this.setState({datetime: event.target.value});
+      if (parts.length !== 3) {
+          this.setState({"valid": false});
+          return;
+      }
+      if (!this.isPositiveInt(parts[0]) || !this.isPositiveInt(parts[1]) || !this.isPositiveInt(parts[2])) {
+          this.setState({"valid": false});
+          return;
+      }
+      this.setState({"valid":true})
+   },
+
+   render: function() {
+      var placeHolder = this.state.datetime;
+      if (this.state.valid) {
+          placeHolder = this.state.datetime.getMonth() + 1 + "/" + this.state.datetime.getDate() + "/"  + this.state.datetime.getFullYear();
+      } 
+      var className = this.state.valid ? "" : "invalid";
+      return (React.createElement("input", {type: "text", className: className, onChange: this.handleChange, value: placeHolder}))
+   }
+ 
 });
 
 var TestApp = React.createClass({displayName: "TestApp",  
@@ -23740,7 +23773,6 @@ var TestApp = React.createClass({displayName: "TestApp",
       success: function(data) {
          this.state.tasks.push(JSON.parse(data)[0])
          this.setState({"tasks": this.state.tasks})
-         console.log(data)
       }.bind(this)
     })
   },
@@ -23752,6 +23784,7 @@ var TestApp = React.createClass({displayName: "TestApp",
                value: this.state.text, 
                onChange: this.handleChange}
         ), 
+        React.createElement(DateField, null), 
         React.createElement("button", {onClick: this.submit}, "Tallenna"), 
         React.createElement(Tasks, {tasks: this.state.tasks})
       )
