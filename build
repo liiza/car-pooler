@@ -1,0 +1,6 @@
+#!/bin/bash
+
+python manage.py collectstatic
+sleep 5
+mv static/js/stats.js templates/js/js/
+

@@ -23654,23 +23654,106 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 ;'use strict';
 
-var LinkedStateMixin = React.addons.LinkedStateMixin;
+// https://docs.djangoproject.com/en/dev/ref/csrf/
+
+// using jQuery
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+var csrftoken = getCookie('csrftoken');
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+var Tasks = React.createClass({displayName: "Tasks",
+   getInitialState: function() {
+      return {"tasks": this.props.tasks}
+   },
+  
+   componentWillReceiveProps(nextProps) {
+      this.setState({ "tasks": nextProps.tasks });
+   },
+ 
+   render: function() {
+      console.log(this.state.tasks)
+      var tasks = this.state.tasks.map(function(task) {
+          return (React.createElement("li", {key: task.pk}, task.fields.content));
+      })
+      return (React.createElement("ul", null, tasks))
+   }   
+  
+});
 
 var TestApp = React.createClass({displayName: "TestApp",  
-  mixins: [LinkedStateMixin],
+
   getInitialState: function() {
-    return {
-       "text" : "foo"    
+   return {
+       "text" : "foo",
+       "tasks" : []   
     };
+  },
+
+  componentDidMount: function() {
+    $.ajax({
+      type: "GET",
+      url: "hours/tasks",
+      dataType: 'json',
+      success: function(data) {
+         this.setState({"tasks" : JSON.parse(data),
+                        "text" : this.state.text});
+      }.bind(this)
+    });
+  },
+
+  handleChange: function(event) {
+    this.setState({text: event.target.value});
+  },
+
+  submit: function() {
+    $.ajax({
+      type: "POST",
+      url: "hours/task",
+      data: this.state.text,
+      success: function(data) {
+         this.state.tasks.push(JSON.parse(data)[0])
+         this.setState({"tasks": this.state.tasks})
+         console.log(data)
+      }.bind(this)
+    })
   },
 
   render: function() {
     return (
       React.createElement("div", {className: "page"}, 
-        React.createElement("h1", null, "Hello ", this.state.text), 
         React.createElement("input", {type: "text", 
-               valueLink: this.linkState('text')}
-        )
+               value: this.state.text, 
+               onChange: this.handleChange}
+        ), 
+        React.createElement("button", {onClick: this.submit}, "Tallenna"), 
+        React.createElement(Tasks, {tasks: this.state.tasks})
       )
     );
   }
