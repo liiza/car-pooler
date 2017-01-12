@@ -52,6 +52,7 @@ var Tasks = React.createClass({
   
 });
 
+
 var DateField = React.createClass({
    getInitialState: function() {
       return {"datetime": new Date(), "valid": true};
@@ -61,18 +62,52 @@ var DateField = React.createClass({
       return !isNaN(parseInt(n)) && isFinite(n) && parseInt(n) > 0;
    },   
 
-   handleChange: function(event) {
-      var parts = event.target.value.split("/")
-      this.setState({datetime: event.target.value});
+   isLeapYear: function(year) {
+       return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)
+   }, 
+
+   isValidDayOfMonth: function(day, month, year) {
+       if ([1, 3, 5, 7, 8, 10, 12].indexOf(month)) {
+          return day <= 31;
+       } 
+       else if ([2, 4, 6, 9, 11].indexOf(month)) {
+          return day <= 30;
+       }
+       else if (month === 2) {
+         if (this.isLeapYear(year)) {
+            return day <= 29;
+         } else {
+            return day <= 28;
+         }
+       }
+   },
+
+   isValidDate: function(parts) {
       if (parts.length !== 3) {
-          this.setState({"valid": false});
-          return;
+          return false;
       }
       if (!this.isPositiveInt(parts[0]) || !this.isPositiveInt(parts[1]) || !this.isPositiveInt(parts[2])) {
-          this.setState({"valid": false});
-          return;
+          return false;
       }
-      this.setState({"valid":true})
+      var month = parseInt(parts[0])
+      var date = parseInt(parts[1])
+      var year = parseInt(parts[2])
+      if (month > 12 || !this.isValidDayOfMonth(date, month, year)) {
+          return false;
+      }
+      return true;
+   },
+
+   handleChange: function(event) {
+      var parts = event.target.value.split("/");
+      if (!this.isValidDate(parts)) {
+         this.setState({"valid": false});
+         this.setState({"datetime": event.target.value});
+      } else {
+         this.setState({"valid":true})
+         this.setState({"datetime": new Date(parts.join("/"))})
+      }
+      this.props.updateDate(this.state)
    },
 
    render: function() {
@@ -91,7 +126,8 @@ var TestApp = React.createClass({
   getInitialState: function() {
    return {
        "text" : "foo",
-       "tasks" : []   
+       "tasks" : [],
+       "valid" : false   
     };
   },
 
@@ -111,6 +147,11 @@ var TestApp = React.createClass({
     this.setState({text: event.target.value});
   },
 
+  updateStartDate: function(dateObj) {
+    this.setState({"valid" : dateObj.valid && this.state.valid})
+    this.setState({"startDate" : dateObj.date})
+  },
+
   submit: function() {
     $.ajax({
       type: "POST",
@@ -122,15 +163,14 @@ var TestApp = React.createClass({
       }.bind(this)
     })
   },
-
+  
   render: function() {
     return (
       <div className="page">
         <input type="text"
                value={this.state.text} 
-               onChange={this.handleChange} 
-        />
-        <DateField/>
+               onChange={this.handleChange} />
+        <DateField updateDate={this.updateStartDate} />
         <button onClick={this.submit}>Tallenna</button>
         <Tasks tasks={this.state.tasks}></Tasks>
       </div>
