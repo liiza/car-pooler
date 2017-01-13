@@ -51,10 +51,9 @@ var Tasks = React.createClass({
    }   
 });
 
-
 var DateField = React.createClass({
    getInitialState: function() {
-      return {"datetime": this.props.date, "valid": true};
+      return {"valid": false};
    },
  
    isPositiveInt: function(n) {
@@ -91,7 +90,7 @@ var DateField = React.createClass({
       var month = parseInt(parts[0])
       var date = parseInt(parts[1])
       var year = parseInt(parts[2])
-      if (month > 12 || !this.isValidDayOfMonth(date, month, year)) {
+      if (month > 12 || !this.isValidDayOfMonth(date, month, year) || year.toString().length != 4) {
           return false;
       }
       return true;
@@ -99,23 +98,17 @@ var DateField = React.createClass({
 
    handleChange: function(event) {
       var parts = event.target.value.split("/");
-      if (!this.isValidDate(parts)) {
-         this.setState({"valid": false});
-         this.setState({"datetime": event.target.value});
-      } else {
-         this.setState({"valid":true})
-         this.setState({"datetime": new Date(parts.join("/"))})
-      }
-      this.props.updateDate(this.state)
+      var valid = this.isValidDate(parts);
+      this.setState({"valid" : valid});
+      this.props.updateDate({"datetime" : valid ? new Date(parts.join("/")) : event.target.value,
+                             "valid"    : valid})
    },
 
    render: function() {
-      var placeHolder = this.state.datetime;
-      if (this.state.valid) {
-          placeHolder = this.state.datetime.getMonth() + 1 + "/" + this.state.datetime.getDate() + "/"  + this.state.datetime.getFullYear();
-      } 
+      var date = new Date();
+      var placeHolder = date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
       var className = this.state.valid ? "" : "invalid";
-      return (<input type="text" className={className} onChange={this.handleChange} value={placeHolder} ></input>)
+      return (<input type="text" className={className} onChange={this.handleChange} placeholder={placeHolder} ></input>)
    }
 });
 
@@ -125,8 +118,8 @@ var TestApp = React.createClass({
    return {
        "content" : "foo",
        "tasks" : [],
-       "startDate" : {"valid" : true, "value" : new Date()},
-       "endDate" : {"valid" : true, "value" : new Date()}
+       "startDate" : {"valid" : false, "value" : null},
+       "endDate"   : {"valid" : false, "value" : null}
     };
   },
 
@@ -152,11 +145,9 @@ var TestApp = React.createClass({
   },
 
   updateEndDate: function(dateObj) {
-    console.log(dateObj)
     this.setState({"endDate" : {
                           "valid" : dateObj.valid,
                           "value" : dateObj.datetime}})
-    console.log(this.state)
   },
  
   submit: function() {
@@ -174,14 +165,15 @@ var TestApp = React.createClass({
   },
   
   render: function() {
+    var valid = this.state.startDate.valid &&  this.state.endDate.valid && this.state.content && this.state.content.length; 
     return (
       <div className="page">
         <input type="text"
                value={this.state.content} 
                onChange={this.handleChange} />
-        <DateField date={this.state.startDate.value} updateDate={this.updateStartDate} />
-        <DateField date={this.state.endDate.value} updateDate={this.updateEndDate} />
-        <button onClick={this.submit}>Tallenna</button>
+        <DateField updateDate={this.updateStartDate} />
+        <DateField updateDate={this.updateEndDate} />
+        <button disabled={!valid} onClick={this.submit}>Tallenna</button>
         <Tasks tasks={this.state.tasks}></Tasks>
       </div>
     );

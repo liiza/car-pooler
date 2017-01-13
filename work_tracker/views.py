@@ -14,10 +14,8 @@ def index(request):
 
 def addTask(request):
     if request.method == 'POST':
-        user = User.objects.get(pk=1)       
-        print request.body
         task_dir = loads(request.body)
-        task = Task.create(task_dir["content"], to_date(task_dir, "startDate"), to_date(task_dir, "endDate"), user)
+        task = Task.create(task_dir["content"], to_date(task_dir, "startDate"), to_date(task_dir, "endDate"))
         task.save()
         return JsonResponse(serializers.serialize('json', [task]), safe=False)
     else:
