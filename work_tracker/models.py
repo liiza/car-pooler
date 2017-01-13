@@ -10,5 +10,8 @@ class Task(models.Model):
     end_time = models.DateTimeField()
     content = models.CharField(max_length=500)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
+   
+    @classmethod
+    def create(cls, content, start, end, user):
+        return cls(content=content, start_time=start, end_time=end, user=user)
 

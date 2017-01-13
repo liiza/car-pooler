@@ -1,3 +1,4 @@
+from json import loads
 from datetime import datetime
 
 from django.shortcuts import render
@@ -13,13 +14,17 @@ def index(request):
 
 def addTask(request):
     if request.method == 'POST':
-        user = User(user_name="foo")
-        user.save()
-        task = Task.objects.create(content=request.body, start_time=datetime.now(), end_time=datetime.now(), user=user)
+        user = User.objects.get(pk=1)       
+        print request.body
+        task_dir = loads(request.body)
+        task = Task.create(task_dir["content"], to_date(task_dir, "startDate"), to_date(task_dir, "endDate"), user)
         task.save()
         return JsonResponse(serializers.serialize('json', [task]), safe=False)
     else:
         raise Http404("Not Found")
+
+def to_date(d, k):
+    return datetime.strptime(d[k], "%Y-%m-%dT%H:%M:%S.%fZ")
 
 def getTasks(request):
     tasks = Task.objects.all()

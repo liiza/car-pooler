@@ -49,13 +49,12 @@ var Tasks = React.createClass({
       })
       return (<ul>{tasks}</ul>)
    }   
-  
 });
 
 
 var DateField = React.createClass({
    getInitialState: function() {
-      return {"datetime": new Date(), "valid": true};
+      return {"datetime": this.props.date, "valid": true};
    },
  
    isPositiveInt: function(n) {
@@ -118,16 +117,16 @@ var DateField = React.createClass({
       var className = this.state.valid ? "" : "invalid";
       return (<input type="text" className={className} onChange={this.handleChange} value={placeHolder} ></input>)
    }
- 
 });
 
 var TestApp = React.createClass({  
 
   getInitialState: function() {
    return {
-       "text" : "foo",
+       "content" : "foo",
        "tasks" : [],
-       "valid" : false   
+       "startDate" : {"valid" : true, "value" : new Date()},
+       "endDate" : {"valid" : true, "value" : new Date()}
     };
   },
 
@@ -137,26 +136,36 @@ var TestApp = React.createClass({
       url: "hours/tasks",
       dataType: 'json',
       success: function(data) {
-         this.setState({"tasks" : JSON.parse(data),
-                        "text" : this.state.text});
+         this.setState({"tasks" : JSON.parse(data)});
       }.bind(this)
     });
   },
 
   handleChange: function(event) {
-    this.setState({text: event.target.value});
+    this.setState({"content": event.target.value});
   },
 
   updateStartDate: function(dateObj) {
-    this.setState({"valid" : dateObj.valid && this.state.valid})
-    this.setState({"startDate" : dateObj.date})
+    this.setState({"startDate" : {
+                          "valid" : dateObj.valid,
+                          "value" : dateObj.datetime}})
   },
 
+  updateEndDate: function(dateObj) {
+    console.log(dateObj)
+    this.setState({"endDate" : {
+                          "valid" : dateObj.valid,
+                          "value" : dateObj.datetime}})
+    console.log(this.state)
+  },
+ 
   submit: function() {
     $.ajax({
       type: "POST",
       url: "hours/task",
-      data: this.state.text,
+      data: JSON.stringify({"content" : this.state.content,
+                            "startDate" : this.state.startDate.value,
+                            "endDate" : this.state.endDate.value}),
       success: function(data) {
          this.state.tasks.push(JSON.parse(data)[0])
          this.setState({"tasks": this.state.tasks})
@@ -168,9 +177,10 @@ var TestApp = React.createClass({
     return (
       <div className="page">
         <input type="text"
-               value={this.state.text} 
+               value={this.state.content} 
                onChange={this.handleChange} />
-        <DateField updateDate={this.updateStartDate} />
+        <DateField date={this.state.startDate.value} updateDate={this.updateStartDate} />
+        <DateField date={this.state.endDate.value} updateDate={this.updateEndDate} />
         <button onClick={this.submit}>Tallenna</button>
         <Tasks tasks={this.state.tasks}></Tasks>
       </div>
