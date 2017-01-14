@@ -34,6 +34,34 @@ $.ajaxSetup({
     }
 });
 
+var Hour = React.createClass({
+   getInitialState: function() {
+      return {"reserved": this.props.reserved}
+   },
+   render: function() {
+      return this.state.reserved ? (<span>X</span>) : (<span>O</span>);
+   }
+});
+
+var Day = React.createClass({
+   getInitialState: function() {
+      return {"date": this.props.date, "startTime":this.props.start, "endTime":this.props.end}
+   },
+
+   isReserved: function(hour) {
+      return this.state.startTime <= this.state.date && this.state.date <= this.state.endTime;
+   },
+
+   render: function() {
+      var hours = []
+      for (var i = 0; i < 24; i++) {
+          var reserved = this.isReserved(i)
+          hours.push((<Hour key={i} reserved={reserved}></Hour>))
+      }
+      return <span>{hours}</span>
+   }
+});
+
 var Tasks = React.createClass({
    getInitialState: function() {
       return {"tasks": this.props.tasks}
@@ -44,8 +72,12 @@ var Tasks = React.createClass({
    },
  
    render: function() {
+      
       var tasks = this.state.tasks.map(function(task) {
-          return (<li key={task.pk}>{task.fields.content}</li>);
+          return (<li key={task.pk}>{task.fields.content} 
+                      <Day date={new Date()} 
+                           start={new Date(task.fields.start_time)} 
+                           end={new Date(task.fields.end_time)}/></li>);
       })
       return (<ul>{tasks}</ul>)
    }   
@@ -53,7 +85,7 @@ var Tasks = React.createClass({
 
 var DateField = React.createClass({
    getInitialState: function() {
-      return {"valid": false};
+      return {"valid": true};
    },
  
    isPositiveInt: function(n) {
@@ -154,9 +186,9 @@ var TestApp = React.createClass({
     $.ajax({
       type: "POST",
       url: "hours/task",
-      data: JSON.stringify({"content" : this.state.content,
+      data: JSON.stringify({"content"   : this.state.content,
                             "startDate" : this.state.startDate.value,
-                            "endDate" : this.state.endDate.value}),
+                            "endDate"   : this.state.endDate.value}),
       success: function(data) {
          this.state.tasks.push(JSON.parse(data)[0])
          this.setState({"tasks": this.state.tasks})

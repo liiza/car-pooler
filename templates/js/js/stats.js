@@ -23688,6 +23688,34 @@ $.ajaxSetup({
     }
 });
 
+var Hour = React.createClass({displayName: "Hour",
+   getInitialState: function() {
+      return {"reserved": this.props.reserved}
+   },
+   render: function() {
+      return this.state.reserved ? (React.createElement("span", null, "X")) : (React.createElement("span", null, "O"));
+   }
+});
+
+var Day = React.createClass({displayName: "Day",
+   getInitialState: function() {
+      return {"date": this.props.date, "startTime":this.props.start, "endTime":this.props.end}
+   },
+
+   isReserved: function(hour) {
+      return this.state.startTime <= this.state.date && this.state.date <= this.state.endTime;
+   },
+
+   render: function() {
+      var hours = []
+      for (var i = 0; i < 24; i++) {
+          var reserved = this.isReserved(i)
+          hours.push((React.createElement(Hour, {key: i, reserved: reserved})))
+      }
+      return React.createElement("span", null, hours)
+   }
+});
+
 var Tasks = React.createClass({displayName: "Tasks",
    getInitialState: function() {
       return {"tasks": this.props.tasks}
@@ -23698,8 +23726,12 @@ var Tasks = React.createClass({displayName: "Tasks",
    },
  
    render: function() {
+      
       var tasks = this.state.tasks.map(function(task) {
-          return (React.createElement("li", {key: task.pk}, task.fields.content));
+          return (React.createElement("li", {key: task.pk}, task.fields.content, 
+                      React.createElement(Day, {date: new Date(), 
+                           start: new Date(task.fields.start_time), 
+                           end: new Date(task.fields.end_time)})));
       })
       return (React.createElement("ul", null, tasks))
    }   
@@ -23707,7 +23739,7 @@ var Tasks = React.createClass({displayName: "Tasks",
 
 var DateField = React.createClass({displayName: "DateField",
    getInitialState: function() {
-      return {"valid": false};
+      return {"valid": true};
    },
  
    isPositiveInt: function(n) {
@@ -23808,9 +23840,9 @@ var TestApp = React.createClass({displayName: "TestApp",
     $.ajax({
       type: "POST",
       url: "hours/task",
-      data: JSON.stringify({"content" : this.state.content,
+      data: JSON.stringify({"content"   : this.state.content,
                             "startDate" : this.state.startDate.value,
-                            "endDate" : this.state.endDate.value}),
+                            "endDate"   : this.state.endDate.value}),
       success: function(data) {
          this.state.tasks.push(JSON.parse(data)[0])
          this.setState({"tasks": this.state.tasks})
