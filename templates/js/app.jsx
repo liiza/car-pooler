@@ -102,7 +102,7 @@ var Time = React.createClass({
       for (var i = 7; i <= 22; i++) {
          options.push((<option key={i}>{i}</option>))
       }
-      return (<select onChange={this.props.updateHour}>{options}</select>);
+      return (<select className="form-control" onChange={this.props.updateHour}>{options}</select>);
    }
 });
 
@@ -175,8 +175,9 @@ var DateField = React.createClass({
       var date = new Date();
       var placeHolder = date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
       var className = this.state.dateValid || (!this.state.datetime || this.state.datetime.length == 0) ? "" : "invalid";
-      return (<p><input type="text" className={className} onChange={this.handleChange} placeholder={placeHolder} ></input>
-              <Time updateHour={this.updateHour}/></p>)
+      className = className + " form-control";
+      return (<span><input type="text" className={className} onChange={this.handleChange} placeholder={placeHolder} ></input>
+              <Time updateHour={this.updateHour}/></span>)
    }
 });
 
@@ -237,11 +238,12 @@ var TestApp = React.createClass({
     return (
       <div className="page">
         <input type="text"
+               className="form-control"
                placeholder="Your Name" 
                onChange={this.handleChange} />
         <DateField updateDate={this.updateStartDate} />
         <DateField updateDate={this.updateEndDate} />
-        <button disabled={!valid} onClick={this.submit}>Tallenna</button>
+        <button className="btn btn-default" disabled={!valid} onClick={this.submit}>Tallenna</button>
         <Tasks tasks={this.state.tasks}></Tasks>
       </div>
     );
