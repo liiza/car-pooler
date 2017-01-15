@@ -1,3 +1,30 @@
 .invalid {
   border: solid red 1px;
 }
+
+.day {
+  padding: 0 5px;
+}
+
+.hour {
+  display: inline-block;
+  width: 15px;
+  height: 20px;
+}
+
+.reserved {
+  background-color: #5bc0de;
+}
+
+.free {
+  background-color: #f7f7f9;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.name {
+  width: 50px;
+  display: inline-block;
+}

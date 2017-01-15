@@ -23693,7 +23693,7 @@ var Hour = React.createClass({displayName: "Hour",
       return {"reserved": this.props.reserved}
    },
    render: function() {
-      return this.state.reserved ? (React.createElement("span", null, "X")) : (React.createElement("span", null, "O"));
+      return this.state.reserved ? (React.createElement("span", {className: "hour reserved"})) : (React.createElement("span", {className: "hour free"}));
    }
 });
 
@@ -23709,11 +23709,11 @@ var Day = React.createClass({displayName: "Day",
 
    render: function() {
       var hours = []
-      for (var i = 0; i < 24; i++) {
+      for (var i = 7; i <= 22; i++) {
           var reserved = this.isReserved(i)
           hours.push((React.createElement(Hour, {key: i, reserved: reserved})))
       }
-      return React.createElement("span", null, hours)
+      return React.createElement("span", {className: "day"}, hours)
    }
 });
 
@@ -23723,7 +23723,7 @@ var Tasks = React.createClass({displayName: "Tasks",
    },
   
    componentWillReceiveProps(nextProps) {
-      this.setState({ "tasks": nextProps.tasks });
+      this.setState({"tasks": nextProps.tasks });
    },
  
    render: function() {
@@ -23734,14 +23734,13 @@ var Tasks = React.createClass({displayName: "Tasks",
       dayAfterTmrw.setDate(today.getDate() + 2); 
       var tasks = this.state.tasks.map(function(task) {
           return (React.createElement("li", {key: task.pk}, 
-                    task.fields.content, " |", 
-                    task.fields.start_time, "-", task.fields.end_time, " |",   
+                    React.createElement("span", {className: "name"}, task.fields.content), 
                     React.createElement(Day, {date: today, 
                        start: new Date(task.fields.start_time), 
-                       end: new Date(task.fields.end_time)}), "|", 
+                       end: new Date(task.fields.end_time)}), 
                     React.createElement(Day, {date: tomorrow, 
                        start: new Date(task.fields.start_time), 
-                       end: new Date(task.fields.end_time)}), "|", 
+                       end: new Date(task.fields.end_time)}), 
                     React.createElement(Day, {date: dayAfterTmrw, 
                        start: new Date(task.fields.start_time), 
                        end: new Date(task.fields.end_time)})

@@ -39,7 +39,7 @@ var Hour = React.createClass({
       return {"reserved": this.props.reserved}
    },
    render: function() {
-      return this.state.reserved ? (<span>X</span>) : (<span>O</span>);
+      return this.state.reserved ? (<span className="hour reserved"></span>) : (<span className="hour free"></span>);
    }
 });
 
@@ -55,11 +55,11 @@ var Day = React.createClass({
 
    render: function() {
       var hours = []
-      for (var i = 0; i < 24; i++) {
+      for (var i = 7; i <= 22; i++) {
           var reserved = this.isReserved(i)
           hours.push((<Hour key={i} reserved={reserved}></Hour>))
       }
-      return <span>{hours}</span>
+      return <span className="day">{hours}</span>
    }
 });
 
@@ -69,7 +69,7 @@ var Tasks = React.createClass({
    },
   
    componentWillReceiveProps(nextProps) {
-      this.setState({ "tasks": nextProps.tasks });
+      this.setState({"tasks": nextProps.tasks });
    },
  
    render: function() {
@@ -80,14 +80,13 @@ var Tasks = React.createClass({
       dayAfterTmrw.setDate(today.getDate() + 2); 
       var tasks = this.state.tasks.map(function(task) {
           return (<li key={task.pk}>
-                    {task.fields.content} |
-                    {task.fields.start_time}-{task.fields.end_time} |  
+                    <span className="name">{task.fields.content}</span>
                     <Day date={today} 
                        start={new Date(task.fields.start_time)} 
-                       end={new Date(task.fields.end_time)}/>|
+                       end={new Date(task.fields.end_time)}/> 
                     <Day date={tomorrow} 
                        start={new Date(task.fields.start_time)} 
-                       end={new Date(task.fields.end_time)}/>|
+                       end={new Date(task.fields.end_time)}/> 
                     <Day date={dayAfterTmrw} 
                        start={new Date(task.fields.start_time)} 
                        end={new Date(task.fields.end_time)}/>
