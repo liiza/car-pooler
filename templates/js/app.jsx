@@ -49,7 +49,8 @@ var Day = React.createClass({
    },
 
    isReserved: function(hour) {
-      return this.state.startTime <= this.state.date && this.state.date <= this.state.endTime;
+      var date = new Date(this.state.date.setHours(hour, 0, 0, 0))
+      return this.state.startTime <= date && date <= this.state.endTime;
    },
 
    render: function() {
@@ -72,20 +73,43 @@ var Tasks = React.createClass({
    },
  
    render: function() {
-      
+      var today = new Date();
+      var tomorrow = new Date();
+      tomorrow.setDate(today.getDate() + 1);
+      var dayAfterTmrw = new Date()
+      dayAfterTmrw.setDate(today.getDate() + 2); 
       var tasks = this.state.tasks.map(function(task) {
-          return (<li key={task.pk}>{task.fields.content} 
-                      <Day date={new Date()} 
-                           start={new Date(task.fields.start_time)} 
-                           end={new Date(task.fields.end_time)}/></li>);
+          return (<li key={task.pk}>
+                    {task.fields.content} |
+                    {task.fields.start_time}-{task.fields.end_time} |  
+                    <Day date={today} 
+                       start={new Date(task.fields.start_time)} 
+                       end={new Date(task.fields.end_time)}/>|
+                    <Day date={tomorrow} 
+                       start={new Date(task.fields.start_time)} 
+                       end={new Date(task.fields.end_time)}/>|
+                    <Day date={dayAfterTmrw} 
+                       start={new Date(task.fields.start_time)} 
+                       end={new Date(task.fields.end_time)}/>
+                  </li>);
       })
       return (<ul>{tasks}</ul>)
    }   
 });
 
+var Time = React.createClass({
+   render: function() {
+      var options = []
+      for (var i = 7; i <= 22; i++) {
+         options.push((<option key={i}>{i}</option>))
+      }
+      return (<select onChange={this.props.updateHour}>{options}</select>);
+   }
+});
+
 var DateField = React.createClass({
    getInitialState: function() {
-      return {"valid": true};
+      return {"dateValid": false, "datetime": null, "hour": null};
    },
  
    isPositiveInt: function(n) {
@@ -130,17 +154,30 @@ var DateField = React.createClass({
 
    handleChange: function(event) {
       var parts = event.target.value.split("/");
-      var valid = this.isValidDate(parts);
-      this.setState({"valid" : valid});
-      this.props.updateDate({"datetime" : valid ? new Date(parts.join("/")) : event.target.value,
-                             "valid"    : valid})
+      var dateValid = this.isValidDate(parts);
+      var date = new Date(parts.join("/"))
+      var datetime = dateValid ? new Date(date.setHours((this.state.hour || 0), 0, 0, 0)) : event.target.value
+      this.setState({"datetime": datetime, 
+                     "dateValid" : dateValid})
+      this.props.updateDate({"datetime" : datetime,
+                             "valid"    : dateValid && this.state.hour})
+   },
+
+   updateHour: function(event) {
+      this.setState({"hour": event.target.value})
+      if (this.state.dateValid) {
+         var datetime = new Date(this.state.datetime.setHours(event.target.value, 0, 0, 0))
+         this.props.updateDate({"datetime" : datetime,
+                                "valid"    : true})
+      }
    },
 
    render: function() {
       var date = new Date();
       var placeHolder = date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
-      var className = this.state.valid ? "" : "invalid";
-      return (<input type="text" className={className} onChange={this.handleChange} placeholder={placeHolder} ></input>)
+      var className = this.state.dateValid || (!this.state.datetime || this.state.datetime.length == 0) ? "" : "invalid";
+      return (<p><input type="text" className={className} onChange={this.handleChange} placeholder={placeHolder} ></input>
+              <Time updateHour={this.updateHour}/></p>)
    }
 });
 
@@ -148,7 +185,7 @@ var TestApp = React.createClass({
 
   getInitialState: function() {
    return {
-       "content" : "foo",
+       "content" : "",
        "tasks" : [],
        "startDate" : {"valid" : false, "value" : null},
        "endDate"   : {"valid" : false, "value" : null}
@@ -201,7 +238,7 @@ var TestApp = React.createClass({
     return (
       <div className="page">
         <input type="text"
-               value={this.state.content} 
+               placeholder="Your Name" 
                onChange={this.handleChange} />
         <DateField updateDate={this.updateStartDate} />
         <DateField updateDate={this.updateEndDate} />

@@ -23703,7 +23703,8 @@ var Day = React.createClass({displayName: "Day",
    },
 
    isReserved: function(hour) {
-      return this.state.startTime <= this.state.date && this.state.date <= this.state.endTime;
+      var date = new Date(this.state.date.setHours(hour, 0, 0, 0))
+      return this.state.startTime <= date && date <= this.state.endTime;
    },
 
    render: function() {
@@ -23726,20 +23727,43 @@ var Tasks = React.createClass({displayName: "Tasks",
    },
  
    render: function() {
-      
+      var today = new Date();
+      var tomorrow = new Date();
+      tomorrow.setDate(today.getDate() + 1);
+      var dayAfterTmrw = new Date()
+      dayAfterTmrw.setDate(today.getDate() + 2); 
       var tasks = this.state.tasks.map(function(task) {
-          return (React.createElement("li", {key: task.pk}, task.fields.content, 
-                      React.createElement(Day, {date: new Date(), 
-                           start: new Date(task.fields.start_time), 
-                           end: new Date(task.fields.end_time)})));
+          return (React.createElement("li", {key: task.pk}, 
+                    task.fields.content, " |", 
+                    task.fields.start_time, "-", task.fields.end_time, " |",   
+                    React.createElement(Day, {date: today, 
+                       start: new Date(task.fields.start_time), 
+                       end: new Date(task.fields.end_time)}), "|", 
+                    React.createElement(Day, {date: tomorrow, 
+                       start: new Date(task.fields.start_time), 
+                       end: new Date(task.fields.end_time)}), "|", 
+                    React.createElement(Day, {date: dayAfterTmrw, 
+                       start: new Date(task.fields.start_time), 
+                       end: new Date(task.fields.end_time)})
+                  ));
       })
       return (React.createElement("ul", null, tasks))
    }   
 });
 
+var Time = React.createClass({displayName: "Time",
+   render: function() {
+      var options = []
+      for (var i = 7; i <= 22; i++) {
+         options.push((React.createElement("option", {key: i}, i)))
+      }
+      return (React.createElement("select", {onChange: this.props.updateHour}, options));
+   }
+});
+
 var DateField = React.createClass({displayName: "DateField",
    getInitialState: function() {
-      return {"valid": true};
+      return {"dateValid": false, "datetime": null, "hour": null};
    },
  
    isPositiveInt: function(n) {
@@ -23784,17 +23808,30 @@ var DateField = React.createClass({displayName: "DateField",
 
    handleChange: function(event) {
       var parts = event.target.value.split("/");
-      var valid = this.isValidDate(parts);
-      this.setState({"valid" : valid});
-      this.props.updateDate({"datetime" : valid ? new Date(parts.join("/")) : event.target.value,
-                             "valid"    : valid})
+      var dateValid = this.isValidDate(parts);
+      var date = new Date(parts.join("/"))
+      var datetime = dateValid ? new Date(date.setHours((this.state.hour || 0), 0, 0, 0)) : event.target.value
+      this.setState({"datetime": datetime, 
+                     "dateValid" : dateValid})
+      this.props.updateDate({"datetime" : datetime,
+                             "valid"    : dateValid && this.state.hour})
+   },
+
+   updateHour: function(event) {
+      this.setState({"hour": event.target.value})
+      if (this.state.dateValid) {
+         var datetime = new Date(this.state.datetime.setHours(event.target.value, 0, 0, 0))
+         this.props.updateDate({"datetime" : datetime,
+                                "valid"    : true})
+      }
    },
 
    render: function() {
       var date = new Date();
       var placeHolder = date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
-      var className = this.state.valid ? "" : "invalid";
-      return (React.createElement("input", {type: "text", className: className, onChange: this.handleChange, placeholder: placeHolder}))
+      var className = this.state.dateValid || (!this.state.datetime || this.state.datetime.length == 0) ? "" : "invalid";
+      return (React.createElement("p", null, React.createElement("input", {type: "text", className: className, onChange: this.handleChange, placeholder: placeHolder}), 
+              React.createElement(Time, {updateHour: this.updateHour})))
    }
 });
 
@@ -23802,7 +23839,7 @@ var TestApp = React.createClass({displayName: "TestApp",
 
   getInitialState: function() {
    return {
-       "content" : "foo",
+       "content" : "",
        "tasks" : [],
        "startDate" : {"valid" : false, "value" : null},
        "endDate"   : {"valid" : false, "value" : null}
@@ -23855,7 +23892,7 @@ var TestApp = React.createClass({displayName: "TestApp",
     return (
       React.createElement("div", {className: "page"}, 
         React.createElement("input", {type: "text", 
-               value: this.state.content, 
+               placeholder: "Your Name", 
                onChange: this.handleChange}), 
         React.createElement(DateField, {updateDate: this.updateStartDate}), 
         React.createElement(DateField, {updateDate: this.updateEndDate}), 
