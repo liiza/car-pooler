@@ -102,7 +102,9 @@ var Time = React.createClass({
       for (var i = 7; i <= 22; i++) {
          options.push((<option key={i}>{i}</option>))
       }
-      return (<select className="form-control" onChange={this.props.updateHour}>{options}</select>);
+      return (<div className="col-md-3">
+                  <select className="form-control" onChange={this.props.updateHour}>{options}</select>
+             </div>);
    }
 });
 
@@ -175,9 +177,13 @@ var DateField = React.createClass({
       var date = new Date();
       var placeHolder = date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
       var className = this.state.dateValid || (!this.state.datetime || this.state.datetime.length == 0) ? "" : "invalid";
-      className = className + " form-control";
-      return (<span><input type="text" className={className} onChange={this.handleChange} placeholder={placeHolder} ></input>
-              <Time updateHour={this.updateHour}/></span>)
+      className = className + " form-control col-md-3";
+      return (<div className="row">
+                 <div className="col-md-3">
+                      <input type="text" className={className} onChange={this.handleChange} placeholder={placeHolder} ></input>
+                 </div>
+                 <Time updateHour={this.updateHour}/>
+              </div>)
    }
 });
 
@@ -237,10 +243,14 @@ var TestApp = React.createClass({
     var valid = this.state.startDate.valid &&  this.state.endDate.valid && this.state.content && this.state.content.length; 
     return (
       <div className="page">
-        <input type="text"
-               className="form-control"
-               placeholder="Your Name" 
-               onChange={this.handleChange} />
+        <div className="row"> 
+            <div className="col-md-3">
+               <input type="text"
+                  className="form-control"
+                  placeholder="Your Name" 
+                  onChange={this.handleChange} />
+            </div>
+        </div>
         <DateField updateDate={this.updateStartDate} />
         <DateField updateDate={this.updateEndDate} />
         <button className="btn btn-default" disabled={!valid} onClick={this.submit}>Tallenna</button>

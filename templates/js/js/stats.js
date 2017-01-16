@@ -23756,7 +23756,9 @@ var Time = React.createClass({displayName: "Time",
       for (var i = 7; i <= 22; i++) {
          options.push((React.createElement("option", {key: i}, i)))
       }
-      return (React.createElement("select", {className: "form-control", onChange: this.props.updateHour}, options));
+      return (React.createElement("div", {className: "col-md-3"}, 
+                  React.createElement("select", {className: "form-control", onChange: this.props.updateHour}, options)
+             ));
    }
 });
 
@@ -23829,9 +23831,13 @@ var DateField = React.createClass({displayName: "DateField",
       var date = new Date();
       var placeHolder = date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
       var className = this.state.dateValid || (!this.state.datetime || this.state.datetime.length == 0) ? "" : "invalid";
-      className = className + " form-control";
-      return (React.createElement("span", null, React.createElement("input", {type: "text", className: className, onChange: this.handleChange, placeholder: placeHolder}), 
-              React.createElement(Time, {updateHour: this.updateHour})))
+      className = className + " form-control col-md-3";
+      return (React.createElement("div", {className: "row"}, 
+                 React.createElement("div", {className: "col-md-3"}, 
+                      React.createElement("input", {type: "text", className: className, onChange: this.handleChange, placeholder: placeHolder})
+                 ), 
+                 React.createElement(Time, {updateHour: this.updateHour})
+              ))
    }
 });
 
@@ -23891,10 +23897,14 @@ var TestApp = React.createClass({displayName: "TestApp",
     var valid = this.state.startDate.valid &&  this.state.endDate.valid && this.state.content && this.state.content.length; 
     return (
       React.createElement("div", {className: "page"}, 
-        React.createElement("input", {type: "text", 
-               className: "form-control", 
-               placeholder: "Your Name", 
-               onChange: this.handleChange}), 
+        React.createElement("div", {className: "row"}, 
+            React.createElement("div", {className: "col-md-3"}, 
+               React.createElement("input", {type: "text", 
+                  className: "form-control", 
+                  placeholder: "Your Name", 
+                  onChange: this.handleChange})
+            )
+        ), 
         React.createElement(DateField, {updateDate: this.updateStartDate}), 
         React.createElement(DateField, {updateDate: this.updateEndDate}), 
         React.createElement("button", {className: "btn btn-default", disabled: !valid, onClick: this.submit}, "Tallenna"), 
