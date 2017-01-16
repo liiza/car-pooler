@@ -10,11 +10,9 @@
     <link rel="stylesheet" type="text/css" href="static/bootstrap-3.3.7-dist/css/bootstrap.css ">
   </head>
   <body>
-    <div class="container">
     {% csrf_token %}
     {% block content %}{% endblock %}
     <!-- JavaScript scripts -->
     {% javascript 'stats' %}
-    </div>
   </body>
 </html> 
