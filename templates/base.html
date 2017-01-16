@@ -6,13 +6,12 @@
     <title>{% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- styles -->
-    <link rel="stylesheet" type="text/css" href="static/style.css">
-    <link rel="stylesheet" type="text/css" href="static/bootstrap-3.3.7-dist/css/bootstrap.css ">
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <link rel="stylesheet" type="text/css" href="/static/bootstrap-3.3.7-dist/css/bootstrap.css ">
   </head>
   <body>
     {% csrf_token %}
     {% block content %}{% endblock %}
-    <!-- JavaScript scripts -->
     {% javascript 'stats' %}
   </body>
 </html> 

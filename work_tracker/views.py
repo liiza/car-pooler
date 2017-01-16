@@ -8,7 +8,6 @@ from django.core import serializers
 
 from models import *
 
-
 def index(request):
     return HttpResponse("Hello, world")
 
