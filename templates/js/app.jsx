@@ -55,6 +55,10 @@ var Day = React.createClass({
       var date = new Date(this.state.date.setHours(hour, 0, 0, 0))
       return this.state.startTime <= date && date <= this.state.endTime;
    },
+  
+   click: function(){
+     console.log(this.props.start + " " + this.props.end)
+   },
 
    render: function() {
       var hours = []
@@ -62,7 +66,7 @@ var Day = React.createClass({
           var reserved = this.isReserved(i)
           hours.push((<Hour key={i} reserved={reserved}></Hour>))
       }
-      return <div className="day col-md-3 col-sm-3">{hours}</div>
+      return <div onClick={this.click} className="day col-md-3 col-sm-3">{hours}</div>
    }
 });
 
@@ -86,20 +90,27 @@ var Tasks = React.createClass({
                         <div className="col-md-3 col-sm-3">{formatDate(today)}</div>
                         <div className="col-md-3 col-sm-3">{formatDate(tomorrow)}</div>
                         <div className="col-md-3 col-sm-3">{formatDate(dayAfterTmrw)}</div>
-                    </div>); 
-      var tasks = this.state.tasks.map(function(task) {
-          return (<div className="row" key={task.pk}>
-                    <div className="col-md-2 col-sm-2 name">{task.fields.content}</div>
-                    <Day date={today} 
-                       start={new Date(task.fields.start_time)} 
-                       end={new Date(task.fields.end_time)}/> 
-                    <Day date={tomorrow} 
-                       start={new Date(task.fields.start_time)} 
-                       end={new Date(task.fields.end_time)}/> 
-                    <Day date={dayAfterTmrw} 
-                       start={new Date(task.fields.start_time)} 
-                       end={new Date(task.fields.end_time)}/>
-                  </div>);
+                    </div>);
+      var tasks = this.state.tasks
+          .filter(function(task) {
+              var endOfDayAfterTomorrow = new Date();
+              endOfDayAfterTomorrow.setDate(today.getDate() + 2);
+              endOfDayAfterTomorrow.setHours(23, 0, 0, 0);
+              return new Date(task.fields.end_time) > today && new Date(task.fields.start_time) < endOfDayAfterTomorrow;
+          })
+          .map(function(task) {
+              return (<div className="row" key={task.pk}>
+                       <div className="col-md-2 col-sm-2 name">{task.fields.content}</div>
+                       <Day date={today} 
+                         start={new Date(task.fields.start_time)} 
+                         end={new Date(task.fields.end_time)}/> 
+                       <Day date={tomorrow} 
+                         start={new Date(task.fields.start_time)} 
+                         end={new Date(task.fields.end_time)}/> 
+                       <Day date={dayAfterTmrw} 
+                         start={new Date(task.fields.start_time)} 
+                         end={new Date(task.fields.end_time)}/>
+                      </div>);
       })
       return (<div>{header}{tasks}</div>)
    }   
@@ -168,7 +179,7 @@ var DateField = React.createClass({
       var dateValid = this.isValidDate(parts);
       var date = new Date(parts.join("/"))
       var datetime = dateValid ? new Date(date.setHours((this.state.hour || 0), 0, 0, 0)) : event.target.value
-      this.setState({"datetime": datetime, 
+      this.setState({"datetime"  : datetime, 
                      "dateValid" : dateValid})
       this.props.updateDate({"datetime" : datetime,
                              "valid"    : dateValid && this.state.hour})

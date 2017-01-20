@@ -23709,6 +23709,10 @@ var Day = React.createClass({displayName: "Day",
       var date = new Date(this.state.date.setHours(hour, 0, 0, 0))
       return this.state.startTime <= date && date <= this.state.endTime;
    },
+  
+   click: function(){
+     console.log(this.props.start + " " + this.props.end)
+   },
 
    render: function() {
       var hours = []
@@ -23716,7 +23720,7 @@ var Day = React.createClass({displayName: "Day",
           var reserved = this.isReserved(i)
           hours.push((React.createElement(Hour, {key: i, reserved: reserved})))
       }
-      return React.createElement("div", {className: "day col-md-3 col-sm-3"}, hours)
+      return React.createElement("div", {onClick: this.click, className: "day col-md-3 col-sm-3"}, hours)
    }
 });
 
@@ -23740,20 +23744,27 @@ var Tasks = React.createClass({displayName: "Tasks",
                         React.createElement("div", {className: "col-md-3 col-sm-3"}, formatDate(today)), 
                         React.createElement("div", {className: "col-md-3 col-sm-3"}, formatDate(tomorrow)), 
                         React.createElement("div", {className: "col-md-3 col-sm-3"}, formatDate(dayAfterTmrw))
-                    )); 
-      var tasks = this.state.tasks.map(function(task) {
-          return (React.createElement("div", {className: "row", key: task.pk}, 
-                    React.createElement("div", {className: "col-md-2 col-sm-2 name"}, task.fields.content), 
-                    React.createElement(Day, {date: today, 
-                       start: new Date(task.fields.start_time), 
-                       end: new Date(task.fields.end_time)}), 
-                    React.createElement(Day, {date: tomorrow, 
-                       start: new Date(task.fields.start_time), 
-                       end: new Date(task.fields.end_time)}), 
-                    React.createElement(Day, {date: dayAfterTmrw, 
-                       start: new Date(task.fields.start_time), 
-                       end: new Date(task.fields.end_time)})
-                  ));
+                    ));
+      var tasks = this.state.tasks
+          .filter(function(task) {
+              var endOfDayAfterTomorrow = new Date();
+              endOfDayAfterTomorrow.setDate(today.getDate() + 2);
+              endOfDayAfterTomorrow.setHours(23, 0, 0, 0);
+              return new Date(task.fields.end_time) > today && new Date(task.fields.start_time) < endOfDayAfterTomorrow;
+          })
+          .map(function(task) {
+              return (React.createElement("div", {className: "row", key: task.pk}, 
+                       React.createElement("div", {className: "col-md-2 col-sm-2 name"}, task.fields.content), 
+                       React.createElement(Day, {date: today, 
+                         start: new Date(task.fields.start_time), 
+                         end: new Date(task.fields.end_time)}), 
+                       React.createElement(Day, {date: tomorrow, 
+                         start: new Date(task.fields.start_time), 
+                         end: new Date(task.fields.end_time)}), 
+                       React.createElement(Day, {date: dayAfterTmrw, 
+                         start: new Date(task.fields.start_time), 
+                         end: new Date(task.fields.end_time)})
+                      ));
       })
       return (React.createElement("div", null, header, tasks))
    }   
@@ -23822,7 +23833,7 @@ var DateField = React.createClass({displayName: "DateField",
       var dateValid = this.isValidDate(parts);
       var date = new Date(parts.join("/"))
       var datetime = dateValid ? new Date(date.setHours((this.state.hour || 0), 0, 0, 0)) : event.target.value
-      this.setState({"datetime": datetime, 
+      this.setState({"datetime"  : datetime, 
                      "dateValid" : dateValid})
       this.props.updateDate({"datetime" : datetime,
                              "valid"    : dateValid && this.state.hour})
