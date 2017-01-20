@@ -7,8 +7,7 @@ function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
+        for (var i = 0; i < cookies.length; i++) { var cookie = jQuery.trim(cookies[i]);
             // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -33,6 +32,10 @@ $.ajaxSetup({
         }
     }
 });
+
+var formatDate = function(date) {
+   return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
+};
 
 var Hour = React.createClass({
    getInitialState: function() {
@@ -59,7 +62,7 @@ var Day = React.createClass({
           var reserved = this.isReserved(i)
           hours.push((<Hour key={i} reserved={reserved}></Hour>))
       }
-      return <span className="day">{hours}</span>
+      return <div className="day col-md-3 col-sm-3">{hours}</div>
    }
 });
 
@@ -77,10 +80,16 @@ var Tasks = React.createClass({
       var tomorrow = new Date();
       tomorrow.setDate(today.getDate() + 1);
       var dayAfterTmrw = new Date()
-      dayAfterTmrw.setDate(today.getDate() + 2); 
+      dayAfterTmrw.setDate(today.getDate() + 2);
+      var header = (<div className="row">
+                        <div className="col-md-2 col-sm-2"></div>
+                        <div className="col-md-3 col-sm-3">{formatDate(today)}</div>
+                        <div className="col-md-3 col-sm-3">{formatDate(tomorrow)}</div>
+                        <div className="col-md-3 col-sm-3">{formatDate(dayAfterTmrw)}</div>
+                    </div>); 
       var tasks = this.state.tasks.map(function(task) {
-          return (<li key={task.pk}>
-                    <span className="name">{task.fields.content}</span>
+          return (<div className="row" key={task.pk}>
+                    <div className="col-md-2 col-sm-2 name">{task.fields.content}</div>
                     <Day date={today} 
                        start={new Date(task.fields.start_time)} 
                        end={new Date(task.fields.end_time)}/> 
@@ -90,9 +99,9 @@ var Tasks = React.createClass({
                     <Day date={dayAfterTmrw} 
                        start={new Date(task.fields.start_time)} 
                        end={new Date(task.fields.end_time)}/>
-                  </li>);
+                  </div>);
       })
-      return (<ul>{tasks}</ul>)
+      return (<div>{header}{tasks}</div>)
    }   
 });
 
@@ -102,7 +111,8 @@ var Time = React.createClass({
       for (var i = 7; i <= 22; i++) {
          options.push((<option key={i}>{i}</option>))
       }
-      return (<div className="col-md-3">
+      return (<div className="col-md-3 form-group">
+                  <label>Time</label>
                   <select className="form-control" onChange={this.props.updateHour}>{options}</select>
              </div>);
    }
@@ -175,11 +185,12 @@ var DateField = React.createClass({
 
    render: function() {
       var date = new Date();
-      var placeHolder = date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
+      var placeHolder = formatDate(date)
       var className = this.state.dateValid || (!this.state.datetime || this.state.datetime.length == 0) ? "" : "invalid";
-      className = className + " form-control col-md-3";
+      className = [className, "form-control", "col-md-3"].join(" ");
       return (<div className="row">
-                 <div className="col-md-3">
+                 <div className="col-md-3 form-group">
+                      <label>{this.props.label}</label>
                       <input type="text" className={className} onChange={this.handleChange} placeholder={placeHolder} ></input>
                  </div>
                  <Time updateHour={this.updateHour}/>
@@ -240,21 +251,24 @@ var TestApp = React.createClass({
   },
   
   render: function() {
-    var valid = this.state.startDate.valid &&  this.state.endDate.valid && this.state.content && this.state.content.length; 
+    var valid = this.state.startDate.valid && this.state.endDate.valid && this.state.content && this.state.content.length; 
     return (
       <div className="page">
-        <div className="row"> 
-            <div className="col-md-3">
-               <input type="text"
-                  className="form-control"
-                  placeholder="Your Name" 
-                  onChange={this.handleChange} />
-            </div>
-        </div>
-        <DateField updateDate={this.updateStartDate} />
-        <DateField updateDate={this.updateEndDate} />
-        <button className="btn btn-default" disabled={!valid} onClick={this.submit}>Tallenna</button>
-        <Tasks tasks={this.state.tasks}></Tasks>
+         <div className="form">
+             <div className="row"> 
+               <div className="col-md-3 form-group">
+                  <label>Name</label>
+                  <input type="text"
+                     className="form-control"
+                     placeholder="Your Name" 
+                     onChange={this.handleChange} />
+               </div>
+             </div>
+             <DateField updateDate={this.updateStartDate} label="Start Name" />
+             <DateField updateDate={this.updateEndDate} label="End Date"/>
+             <button className="btn btn-default" disabled={!valid} onClick={this.submit}>Tallenna</button>
+         </div>
+         <Tasks tasks={this.state.tasks}></Tasks>
       </div>
     );
   }

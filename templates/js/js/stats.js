@@ -23661,8 +23661,7 @@ function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
         var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
+        for (var i = 0; i < cookies.length; i++) { var cookie = jQuery.trim(cookies[i]);
             // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
@@ -23687,6 +23686,10 @@ $.ajaxSetup({
         }
     }
 });
+
+var formatDate = function(date) {
+   return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
+};
 
 var Hour = React.createClass({displayName: "Hour",
    getInitialState: function() {
@@ -23713,7 +23716,7 @@ var Day = React.createClass({displayName: "Day",
           var reserved = this.isReserved(i)
           hours.push((React.createElement(Hour, {key: i, reserved: reserved})))
       }
-      return React.createElement("span", {className: "day"}, hours)
+      return React.createElement("div", {className: "day col-md-3 col-sm-3"}, hours)
    }
 });
 
@@ -23731,10 +23734,16 @@ var Tasks = React.createClass({displayName: "Tasks",
       var tomorrow = new Date();
       tomorrow.setDate(today.getDate() + 1);
       var dayAfterTmrw = new Date()
-      dayAfterTmrw.setDate(today.getDate() + 2); 
+      dayAfterTmrw.setDate(today.getDate() + 2);
+      var header = (React.createElement("div", {className: "row"}, 
+                        React.createElement("div", {className: "col-md-2 col-sm-2"}), 
+                        React.createElement("div", {className: "col-md-3 col-sm-3"}, formatDate(today)), 
+                        React.createElement("div", {className: "col-md-3 col-sm-3"}, formatDate(tomorrow)), 
+                        React.createElement("div", {className: "col-md-3 col-sm-3"}, formatDate(dayAfterTmrw))
+                    )); 
       var tasks = this.state.tasks.map(function(task) {
-          return (React.createElement("li", {key: task.pk}, 
-                    React.createElement("span", {className: "name"}, task.fields.content), 
+          return (React.createElement("div", {className: "row", key: task.pk}, 
+                    React.createElement("div", {className: "col-md-2 col-sm-2 name"}, task.fields.content), 
                     React.createElement(Day, {date: today, 
                        start: new Date(task.fields.start_time), 
                        end: new Date(task.fields.end_time)}), 
@@ -23746,7 +23755,7 @@ var Tasks = React.createClass({displayName: "Tasks",
                        end: new Date(task.fields.end_time)})
                   ));
       })
-      return (React.createElement("ul", null, tasks))
+      return (React.createElement("div", null, header, tasks))
    }   
 });
 
@@ -23756,7 +23765,8 @@ var Time = React.createClass({displayName: "Time",
       for (var i = 7; i <= 22; i++) {
          options.push((React.createElement("option", {key: i}, i)))
       }
-      return (React.createElement("div", {className: "col-md-3"}, 
+      return (React.createElement("div", {className: "col-md-3 form-group"}, 
+                  React.createElement("label", null, "Time"), 
                   React.createElement("select", {className: "form-control", onChange: this.props.updateHour}, options)
              ));
    }
@@ -23829,11 +23839,12 @@ var DateField = React.createClass({displayName: "DateField",
 
    render: function() {
       var date = new Date();
-      var placeHolder = date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
+      var placeHolder = formatDate(date)
       var className = this.state.dateValid || (!this.state.datetime || this.state.datetime.length == 0) ? "" : "invalid";
-      className = className + " form-control col-md-3";
+      className = [className, "form-control", "col-md-3"].join(" ");
       return (React.createElement("div", {className: "row"}, 
-                 React.createElement("div", {className: "col-md-3"}, 
+                 React.createElement("div", {className: "col-md-3 form-group"}, 
+                      React.createElement("label", null, this.props.label), 
                       React.createElement("input", {type: "text", className: className, onChange: this.handleChange, placeholder: placeHolder})
                  ), 
                  React.createElement(Time, {updateHour: this.updateHour})
@@ -23894,21 +23905,24 @@ var TestApp = React.createClass({displayName: "TestApp",
   },
   
   render: function() {
-    var valid = this.state.startDate.valid &&  this.state.endDate.valid && this.state.content && this.state.content.length; 
+    var valid = this.state.startDate.valid && this.state.endDate.valid && this.state.content && this.state.content.length; 
     return (
       React.createElement("div", {className: "page"}, 
-        React.createElement("div", {className: "row"}, 
-            React.createElement("div", {className: "col-md-3"}, 
-               React.createElement("input", {type: "text", 
-                  className: "form-control", 
-                  placeholder: "Your Name", 
-                  onChange: this.handleChange})
-            )
-        ), 
-        React.createElement(DateField, {updateDate: this.updateStartDate}), 
-        React.createElement(DateField, {updateDate: this.updateEndDate}), 
-        React.createElement("button", {className: "btn btn-default", disabled: !valid, onClick: this.submit}, "Tallenna"), 
-        React.createElement(Tasks, {tasks: this.state.tasks})
+         React.createElement("div", {className: "form"}, 
+             React.createElement("div", {className: "row"}, 
+               React.createElement("div", {className: "col-md-3 form-group"}, 
+                  React.createElement("label", null, "Name"), 
+                  React.createElement("input", {type: "text", 
+                     className: "form-control", 
+                     placeholder: "Your Name", 
+                     onChange: this.handleChange})
+               )
+             ), 
+             React.createElement(DateField, {updateDate: this.updateStartDate, label: "Start Name"}), 
+             React.createElement(DateField, {updateDate: this.updateEndDate, label: "End Date"}), 
+             React.createElement("button", {className: "btn btn-default", disabled: !valid, onClick: this.submit}, "Tallenna")
+         ), 
+         React.createElement(Tasks, {tasks: this.state.tasks})
       )
     );
   }
