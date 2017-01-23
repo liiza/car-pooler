@@ -23773,6 +23773,7 @@ var Tasks = React.createClass({displayName: "Tasks",
 var Time = React.createClass({displayName: "Time",
    render: function() {
       var options = []
+      options.push((React.createElement("option", {disabled: true, selected: true, value: true}, "-")))
       for (var i = 7; i <= 22; i++) {
          options.push((React.createElement("option", {key: i}, i)))
       }

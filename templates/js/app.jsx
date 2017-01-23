@@ -119,6 +119,7 @@ var Tasks = React.createClass({
 var Time = React.createClass({
    render: function() {
       var options = []
+      options.push((<option disabled selected value>-</option>))
       for (var i = 7; i <= 22; i++) {
          options.push((<option key={i}>{i}</option>))
       }
