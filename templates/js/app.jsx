@@ -81,6 +81,7 @@ var Tasks = React.createClass({
  
    render: function() {
       var today = new Date();
+      today.setHours(0, 0, 0, 0);
       var tomorrow = new Date();
       tomorrow.setDate(today.getDate() + 1);
       var dayAfterTmrw = new Date()
@@ -119,7 +120,7 @@ var Tasks = React.createClass({
 var Time = React.createClass({
    render: function() {
       var options = []
-      options.push((<option disabled selected value>-</option>))
+      options.push((<option key={0} disabled value>-</option>))
       for (var i = 7; i <= 22; i++) {
          options.push((<option key={i}>{i}</option>))
       }
