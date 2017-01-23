@@ -101,16 +101,16 @@ var Tasks = React.createClass({
           })
           .map(function(task) {
               return (<div className="row" key={task.pk}>
-                       <div className="col-md-2 col-sm-2 name">{task.fields.content}</div>
-                       <Day date={today} 
-                         start={new Date(task.fields.start_time)} 
-                         end={new Date(task.fields.end_time)}/> 
-                       <Day date={tomorrow} 
-                         start={new Date(task.fields.start_time)} 
-                         end={new Date(task.fields.end_time)}/> 
-                       <Day date={dayAfterTmrw} 
-                         start={new Date(task.fields.start_time)} 
-                         end={new Date(task.fields.end_time)}/>
+                        <div className="col-md-2 col-sm-2 name">{task.fields.content}</div>
+                        <Day date={today} 
+                          start={new Date(task.fields.start_time)} 
+                          end={new Date(task.fields.end_time)}/> 
+                        <Day date={tomorrow} 
+                          start={new Date(task.fields.start_time)} 
+                          end={new Date(task.fields.end_time)}/> 
+                        <Day date={dayAfterTmrw} 
+                          start={new Date(task.fields.start_time)} 
+                          end={new Date(task.fields.end_time)}/>
                       </div>);
       })
       return (<div>{header}{tasks}</div>)
@@ -118,6 +118,13 @@ var Tasks = React.createClass({
 });
 
 var Time = React.createClass({
+   getInitialState: function() {
+      return {value: "-"};
+   }, 
+   handleChange: function(event) {
+     this.setState({value: event.target.value});
+     this.props.updateHour(event)
+   },
    render: function() {
       var options = []
       options.push((<option key={0} disabled value>-</option>))
@@ -126,7 +133,7 @@ var Time = React.createClass({
       }
       return (<div className="col-md-3 form-group">
                   <label>Time</label>
-                  <select className="form-control" onChange={this.props.updateHour}>{options}</select>
+                  <select className="form-control" onChange={this.handleChange} value={this.state.value}>{options}</select>
              </div>);
    }
 });
@@ -279,7 +286,9 @@ var TestApp = React.createClass({
              </div>
              <DateField updateDate={this.updateStartDate} label="Start Name" />
              <DateField updateDate={this.updateEndDate} label="End Date"/>
-             <button className="btn btn-default" disabled={!valid} onClick={this.submit}>Tallenna</button>
+             <button className="btn btn-default" disabled={!valid} onClick={this.submit}>
+               Save
+             </button>
          </div>
          <Tasks tasks={this.state.tasks}></Tasks>
       </div>

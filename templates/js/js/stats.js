@@ -23772,6 +23772,13 @@ var Tasks = React.createClass({displayName: "Tasks",
 });
 
 var Time = React.createClass({displayName: "Time",
+   getInitialState: function() {
+      return {value: "-"};
+   }, 
+   handleChange: function(event) {
+     this.setState({value: event.target.value});
+     this.props.updateHour(event)
+   },
    render: function() {
       var options = []
       options.push((React.createElement("option", {key: 0, disabled: true, value: true}, "-")))
@@ -23780,7 +23787,7 @@ var Time = React.createClass({displayName: "Time",
       }
       return (React.createElement("div", {className: "col-md-3 form-group"}, 
                   React.createElement("label", null, "Time"), 
-                  React.createElement("select", {className: "form-control", onChange: this.props.updateHour}, options)
+                  React.createElement("select", {className: "form-control", onChange: this.handleChange, value: this.state.value}, options)
              ));
    }
 });
