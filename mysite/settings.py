@@ -142,6 +142,7 @@ PIPELINE = {
                 'bower_components/jquery/dist/jquery.min.js',
                 'bower_components/react/react-with-addons.js',
                 'bower_components/react/react-dom.js',
+                'csrf.js',
                 'app.jsx',
             ),
             'output_filename': 'js/stats.js',

@@ -23652,9 +23652,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 });
 });
 
-;'use strict';
-
-// https://docs.djangoproject.com/en/dev/ref/csrf/
+;// https://docs.djangoproject.com/en/dev/ref/csrf/
 
 // using jQuery
 function getCookie(name) {
@@ -23687,6 +23685,9 @@ $.ajaxSetup({
     }
 });
 
+
+
+;'use strict';
 var formatDate = function(date) {
    return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
 };
@@ -23755,16 +23756,16 @@ var Tasks = React.createClass({displayName: "Tasks",
           })
           .map(function(task) {
               return (React.createElement("div", {className: "row", key: task.pk}, 
-                       React.createElement("div", {className: "col-md-2 col-sm-2 name"}, task.fields.content), 
-                       React.createElement(Day, {date: today, 
-                         start: new Date(task.fields.start_time), 
-                         end: new Date(task.fields.end_time)}), 
-                       React.createElement(Day, {date: tomorrow, 
-                         start: new Date(task.fields.start_time), 
-                         end: new Date(task.fields.end_time)}), 
-                       React.createElement(Day, {date: dayAfterTmrw, 
-                         start: new Date(task.fields.start_time), 
-                         end: new Date(task.fields.end_time)})
+                        React.createElement("div", {className: "col-md-2 col-sm-2 name"}, task.fields.content), 
+                        React.createElement(Day, {date: today, 
+                          start: new Date(task.fields.start_time), 
+                          end: new Date(task.fields.end_time)}), 
+                        React.createElement(Day, {date: tomorrow, 
+                          start: new Date(task.fields.start_time), 
+                          end: new Date(task.fields.end_time)}), 
+                        React.createElement(Day, {date: dayAfterTmrw, 
+                          start: new Date(task.fields.start_time), 
+                          end: new Date(task.fields.end_time)})
                       ));
       })
       return (React.createElement("div", null, header, tasks))
@@ -23940,7 +23941,9 @@ var TestApp = React.createClass({displayName: "TestApp",
              ), 
              React.createElement(DateField, {updateDate: this.updateStartDate, label: "Start Name"}), 
              React.createElement(DateField, {updateDate: this.updateEndDate, label: "End Date"}), 
-             React.createElement("button", {className: "btn btn-default", disabled: !valid, onClick: this.submit}, "Tallenna")
+             React.createElement("button", {className: "btn btn-default", disabled: !valid, onClick: this.submit}, 
+               "Save"
+             )
          ), 
          React.createElement(Tasks, {tasks: this.state.tasks})
       )
