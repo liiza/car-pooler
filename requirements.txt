@@ -9,3 +9,4 @@ jsonschema==2.5.1
 psycopg2==2.6.2
 pyOpenSSL==0.13.1
 PyReact==0.6.0
+PyExecJS==1.4.0
