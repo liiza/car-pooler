@@ -80,14 +80,14 @@ matches = re.match(r"(?P<driver>.*?):\/\/(?P<user>.*?):(?P<password>.*?)@(?P<hos
 
 DATABASES = {
     'default': {
-    #    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #    'NAME': matches.group('name'),
-    #    'USER': matches.group('user'),
-    #    'PASSWORD': matches.group('password'),
-    #    'HOST': matches.group('host'),
-    #    'PORT': matches.group('port'),
-         'ENGINE': 'django.db.backends.sqlite3',
-         'NAME': 'mydatabase'
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': matches.group('name'),
+        'USER': matches.group('user'),
+        'PASSWORD': matches.group('password'),
+        'HOST': matches.group('host'),
+        'PORT': matches.group('port'),
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': 'mydatabase'
     }
 }
 
