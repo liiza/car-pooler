@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-
+import re
 import os
 from os.path import abspath, basename, dirname, join, normpath
 
@@ -25,7 +25,7 @@ SECRET_KEY = 'o$lqo-#tl+8-ur)iug26sl4-@#p8n$sp6x9t015555=#)hf14f'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['aqueous-caverns-62337.herokuapp.com']
+ALLOWED_HOSTS = ['localhost', 'aqueous-caverns-62337.herokuapp.com']
 
 
 # Application definition
@@ -76,21 +76,18 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-# postgres://gazrzpvziyfkaw:31c417bbdf1526769ecc5d68563a6d508a1428a6a111f5768d7aacdb6e003916@ec2-54-217-222-254.eu-west-1.compute.amazonaws.com:5432/dbv86cp0seqbe3
-database_url = os.environ['DATABASE_URL']
-driver, url = database_url.split("//")
-user, password_and_host, port_and_name = url.split(":")
-password, host = password_and_host.split("@")
-port, name = port_and_name.split("/")
+matches = re.match(r"(?P<driver>.*?):\/\/(?P<user>.*?):(?P<password>.*?)@(?P<host>.*?):(?P<port>.*?)\/(?P<name>.*)", os.environ['DATABASE_URL'])
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': name,
-        'USER': user,
-        'PASSWORD': password,
-        'HOST': host,
-        'PORT': port,
+    #    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #    'NAME': matches.group('name'),
+    #    'USER': matches.group('user'),
+    #    'PASSWORD': matches.group('password'),
+    #    'HOST': matches.group('host'),
+    #    'PORT': matches.group('port'),
+         'ENGINE': 'django.db.backends.sqlite3',
+         'NAME': 'mydatabase'
     }
 }
 
